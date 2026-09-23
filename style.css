@@ -19,3 +19,12 @@ canvas {
   font-family: "Courier New", Courier, monospace;
   pointer-events: none;
 }
+
+#light {
+  position: absolute;
+  opacity: 0;
+  display: block;
+  pointer-events: none;
+  cursor: move;
+  width: 75px;
+}

@@ -237,9 +237,20 @@ let render_fragment = `
 
 function Settings()
 {
+  let gui = new dat.GUI({
+    load: gui_presets
+  });
+
+  gui.width = 300;
+
+  gui.useLocalStorage = true;
+
+  gui.remember(Settings);
+
   Settings.anisotropy = 0.8;
   Settings.simulation_iterations_per_frame = 4;
   Settings.environment_noise_scale = 250;
+  Settings.update_environment = createEnvironment;
   Settings.background_color = [229, 229, 229];
   Settings.substance_color = [50, 158, 168];
   Settings.specular_color = [128, 128, 128];
@@ -247,12 +258,15 @@ function Settings()
   Settings.light_height = 300;
   Settings.bump = 20;
   Settings.separate_fields = false;
-  Settings.diffusion_scale = 0.625;
-  Settings.diffusion_scale_variation = 0.375;
-  Settings.feed = 0.042;
-  Settings.feed_variation = 0.001;
-  Settings.kill = 0.06;
-  Settings.kill_variation = 0.001;
+
+  Settings.toggleLight = () => {
+    if(Settings.toggleLight.initiated === true)
+    {
+      light_enabled = !light_enabled;
+      light_element.style.opacity = light_enabled * 0.6;
+    }
+  };
+
 }
 
 let width = window.innerWidth;
@@ -425,4 +439,50 @@ function createEnvironment(update = true)
 
   reaction_diffusion_uniforms.environment.value.magFilter = THREE.LinearFilter;
   reaction_diffusion_uniforms.environment.value.minFilter = THREE.LinearFilter;
+}function onMove(event)
+{
+  let x = event.clientX * (simulation_width / width);
+  let y = simulation_height - event.clientY * (simulation_height / height);
+
+  reaction_diffusion_uniforms.mouse_pos.value.fromArray([x, y]);
+
+  if(mouse_down)
+  {
+    let mouse_pos = new THREE.Vector2(event.clientX, height - event.clientY);
+    if(light_enabled && (light_move || mouse_pos.distanceTo(light_pos) < light_half_dim))
+    {
+      light_move = true;
+      brush_move = false;
+      updateLightPosition(mouse_pos);
+    }
+    else
+    {
+      brush_move = true;
+      light_move = false;
+    }
+  }
+  reaction_diffusion_uniforms['mouse_down'].value = brush_move;
 }
+
+function onUp()
+{
+  mouse_down = light_move = brush_move = false;
+  reaction_diffusion_uniforms['mouse_down'].value = false;
+}
+
+function onDown()
+{
+  mouse_down = true;
+  if(onDown.draw_text_removed === undefined)
+  {
+    Settings.toggleLight.initiated = true;
+    Settings.toggleLight();
+    document.getElementById('draw').remove();
+    onDown.draw_text_removed = true;
+  }
+}
+
+renderer.domElement.onmousedown = onDown;
+renderer.domElement.onmouseup = onUp;
+renderer.domElement.onmouseleave = onUp;
+renderer.domElement.onmousemove = onMove;
