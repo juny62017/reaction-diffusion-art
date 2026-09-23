@@ -64,6 +64,38 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Fingerprints": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.037,
+        "feed_variation": 0,
+        "kill": 0.06,
+        "kill_variation": 0,
+        "anisotropy": 0.8,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          81.46489021274867,
+          175,
+          61.42165240119485
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
@@ -266,6 +298,48 @@ function Settings()
       light_element.style.opacity = light_enabled * 0.6;
     }
   };
+
+  function variationProperty(value, variation, name, min0, max0, step0, min1, max1, step1)
+  {
+    this.val_name = name.replace(/ /g,"_").toLowerCase();
+    this.var_name = this.val_name + "_variation";
+    Settings[this.val_name] = value;
+    Settings[this.var_name] = variation;
+
+    folder = gui.addFolder(name);
+
+    this.value_controller = folder.add(Settings, this.val_name, min0, max0, step0).onChange(() => {
+      reaction_diffusion_uniforms[this.val_name].value = Settings[this.val_name];
+    }).name('Value');
+
+    this.variation_controller = folder.add(Settings, this.var_name, min1, max1, step1).onChange(() => {
+      reaction_diffusion_uniforms[this.var_name].value = Settings[this.var_name];
+    }).name('Variation');
+  }
+
+  const min_diffusion_scale = 0.125;
+
+  let DS_prop = new variationProperty(0.625, 0.375, "Diffusion Scale", min_diffusion_scale, 2.5, 0.0001, 0, 0.625 - min_diffusion_scale, 0.0001);
+  let F_prop = new variationProperty(0.042, 0.001, "Feed", 0.01, 0.12, 0.0001, 0, 0.01, 0.0001);
+  let K_prop = new variationProperty(0.06, 0.001, "Kill", 0.01, 0.12, 0.0001, 0, 0.01, 0.0001);
+
+  function changeDS()
+  {
+    let max_variation = Settings[DS_prop.val_name] - min_diffusion_scale;
+    if(max_variation <  Settings[DS_prop.var_name])
+    {
+      Settings[DS_prop.var_name] = max_variation;
+    }
+
+    DS_prop.variation_controller.max(max_variation);
+    DS_prop.variation_controller.updateDisplay();
+
+    reaction_diffusion_uniforms[DS_prop.val_name].value = Settings[DS_prop.val_name];
+    reaction_diffusion_uniforms[DS_prop.var_name].value = Settings[DS_prop.var_name];
+  }
+
+  DS_prop.value_controller.onChange(changeDS);
+  DS_prop.variation_controller.onChange(changeDS);
 
 }
 
@@ -482,7 +556,36 @@ function onDown()
   }
 }
 
+function touchStart(event) 
+{
+  if(event.touches.length == 1)
+  {
+    onDown();
+  }
+}
+
+function touchMove(event)
+{
+  if(event.touches.length == 1)
+  {
+    event.preventDefault();
+    onMove(event.touches[0]);
+  }
+}
+
+function touchEnd(event) 
+{
+  if(event.touches.length == 0)
+  {
+    onUp();
+  }
+}
+
 renderer.domElement.onmousedown = onDown;
 renderer.domElement.onmouseup = onUp;
 renderer.domElement.onmouseleave = onUp;
 renderer.domElement.onmousemove = onMove;
+renderer.domElement.addEventListener("touchstart", touchStart, false);
+renderer.domElement.addEventListener("touchend", touchEnd, false);
+renderer.domElement.addEventListener("touchcancel", touchEnd, false);
+renderer.domElement.addEventListener("touchmove", touchMove, false);
