@@ -233,3 +233,98 @@ reaction_diffusion_uniforms['anisotropy'] = { value: Settings.anisotropy };
 reaction_diffusion_uniforms['reset'] = { value: false };
 reaction_diffusion_uniforms['separate_fields'] = { value: Settings.separate_fields };
 
+let light_element = document.getElementById('light');
+let light_half_dim = light_element.clientWidth / 2;
+updateLightPosition(new THREE.Vector2(width/2, height/2));
+
+createEnvironment();
+
+gpu_compute.init();
+
+function animate() 
+{
+  requestAnimationFrame(animate);
+  render();
+}
+
+animate();
+
+function render()
+{
+  simulateReactionDiffusion(Settings.simulation_iterations_per_frame);
+  material.uniforms.reaction_diffusion.value = gpu_compute.getCurrentRenderTarget(reaction_diffusion_variable).texture;
+
+  renderer.render(scene, camera);
+
+  if(render.save_image === true)
+  {
+    render.save_image = false;
+    let save_link = document.getElementById('save-link');
+    save_link.download = render.savename;
+    save_link.href = renderer.domElement.toDataURL();
+    save_link.click();
+  }
+}
+
+function simulateReactionDiffusion(iterations)
+{
+  for(let i = 0; i < iterations; i++)
+  {
+    gpu_compute.compute();
+  }
+}
+
+function updateLightPosition(pos)
+{
+  pos.x = (pos.x - light_half_dim <= 0) ? light_half_dim : 
+         ((pos.x + light_half_dim >= width) ? width - light_half_dim : pos.x);
+
+  pos.y = (pos.y - light_half_dim <= 0) ? light_half_dim :
+         ((pos.y + light_half_dim >= height) ? height - light_half_dim : pos.y); 
+
+  light_pos = pos;
+  light_element.style.top = height - pos.y - light_half_dim + "px";
+  light_element.style.left = pos.x - light_half_dim + "px";
+
+  material.uniforms.light_pos.value.x = pos.x * (simulation_width / width);
+  material.uniforms.light_pos.value.y = simulation_height - (height - pos.y) * (simulation_height / height);
+}
+
+function createEnvironment(update = true)
+{
+  if(!update && createEnvironment.prev_scale !== undefined && createEnvironment.prev_scale == Settings.environment_noise_scale)
+  {
+    return;
+  }
+
+  createEnvironment.prev_scale = Settings.environment_noise_scale;
+
+  let simplex = new THREE.SimplexNoise();
+
+  let offsets = new Array(4);
+  for (let i = 0; i < 4; i++)
+  {
+    offsets[i] = (i + Math.random()) * 1000;
+  }
+
+  let inv_scale = 1.0 / Settings.environment_noise_scale;
+
+  let pixels = new Float32Array(simulation_width * simulation_height * 4);
+  for (let y = 0; y < simulation_height; y++)
+  {
+    for (let x = 0; x < simulation_width; x++)
+    {
+      for (let i = 0; i < 4; i++)
+      {
+        pixels[(y * simulation_width + x) * 4 + i] = simplex.noise3d((x + 0.5) * inv_scale, (y + 0.5) * inv_scale, offsets[i]);
+      }
+    }
+  }
+
+  reaction_diffusion_uniforms['environment'] = { 
+    value: new THREE.DataTexture(pixels, simulation_width, simulation_height, THREE.RGBAFormat, THREE.FloatType) 
+  };
+
+  reaction_diffusion_uniforms.environment.value.magFilter = THREE.LinearFilter;
+  reaction_diffusion_uniforms.environment.value.minFilter = THREE.LinearFilter;
+}
