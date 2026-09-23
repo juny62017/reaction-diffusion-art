@@ -1,3 +1,86 @@
+let reaction_diffusion_fragment = `
+
+uniform sampler2D environment;
+
+uniform float feed;
+uniform float kill;
+uniform float diffusion_scale;
+
+uniform float feed_variation;
+uniform float kill_variation;
+uniform float diffusion_scale_variation;
+
+uniform float anisotropy;
+uniform bool separate_fields;
+
+uniform vec2 mouse_pos;
+uniform bool mouse_down;
+
+uniform bool reset;
+
+#define p2(v) v * v
+#define PI 3.14159265358979323846
+
+#define R 10.0
+
+#define s(x, y) texture2D(reaction_diffusion, (gl_FragCoord.xy + vec2(x, y)) / resolution).xy
+
+vec2 anisotropicDiffusion(vec2 angles, float a1, vec2 center)
+{
+  vec2
+  v00 = s(-1, 1), v10 = s(0, 1), v20 = s(1, 1),
+  v01 = s(-1, 0),                v21 = s(1, 0),
+  v02 = s(-1,-1), v12 = s(0,-1), v22 = s(1,-1);
+
+  vec2 cos_t = cos(angles);
+  vec2 sin_t = sin(angles);
+
+  vec2 cos2_t = p2(cos_t);
+  vec2 sin2_t = p2(sin_t);
+
+  float a2 = 1.0 - a1;
+
+  vec2 d = 4.0 * (a2 - a1) * p2(cos_t * sin_t);
+  vec2 h = 8.0 * (a1 * cos2_t + a2 * sin2_t);
+  vec2 v = 8.0 * (a2 * cos2_t + a1 * sin2_t);
+
+  return ((1.0 - d) * (v00 + v22) + (1.0 + d) * (v20 + v02) + h * (v01 + v21) + v * (v10 + v12) - 20.0 * center) / 6.0;
+}
+
+void main()
+{
+  vec4 env = texture2D(environment, (gl_FragCoord.xy / resolution).xy);
+
+  float F = feed + env[0] * feed_variation;
+  float K = kill + env[1] * kill_variation;
+  float DS = diffusion_scale + env[2] * diffusion_scale_variation;
+  vec2 angles = (1.0 + vec2(env[3], separate_fields ? env[0] : env[3])) * PI;
+
+  vec2 old = s(0, 0);
+
+  vec2 reaction = vec2(-1.0, 1.0) * old[0] * old[1] * old[1];
+
+  vec2 dissipation = vec2(F * (1.0 - old[0]), -old[1] * (K + F));
+
+  vec2 diffusion = anisotropicDiffusion(angles, anisotropy, old) * DS * vec2(1.0, 0.5);
+
+  float dt = 1.0 / (4.0 * DS);
+
+  gl_FragColor.xy = old + (reaction + dissipation + diffusion) * dt;
+
+  if(mouse_down)
+  {
+    gl_FragColor[1] += max(0.25 - old[1], 0.0) * max(R - distance(gl_FragCoord.xy, mouse_pos), 0.0) / R;
+  }
+
+  if(reset)
+  {
+    gl_FragColor = vec4(0.0);
+  }
+}
+
+`;
+
 let render_vertex = `
   void main()
   {
@@ -120,4 +203,33 @@ let material = new THREE.ShaderMaterial
   }
 });
 scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), material));
+
+let gpu_compute = new THREE.GPUComputationRenderer(simulation_width, simulation_height, renderer);
+
+let reaction_diffusion = gpu_compute.createTexture();
+
+let reaction_diffusion_variable = gpu_compute.addVariable(
+  "reaction_diffusion", 
+  reaction_diffusion_fragment,
+  reaction_diffusion
+);
+
+reaction_diffusion_variable.wrapS = THREE.ClampToEdgeWrapping;
+reaction_diffusion_variable.wrapT = THREE.ClampToEdgeWrapping;
+
+gpu_compute.setVariableDependencies(reaction_diffusion_variable, [reaction_diffusion_variable]);
+
+reaction_diffusion_uniforms = reaction_diffusion_variable.material.uniforms;
+
+reaction_diffusion_uniforms['mouse_pos'] = { value: new THREE.Vector2(-100, -100) };
+reaction_diffusion_uniforms['mouse_down'] = { value: false };
+reaction_diffusion_uniforms['feed'] = { value: Settings.feed };
+reaction_diffusion_uniforms['kill'] = { value: Settings.kill };
+reaction_diffusion_uniforms['diffusion_scale'] = { value: Settings.diffusion_scale };
+reaction_diffusion_uniforms['feed_variation'] = { value: Settings.feed_variation };
+reaction_diffusion_uniforms['kill_variation'] = { value: Settings.kill_variation };
+reaction_diffusion_uniforms['diffusion_scale_variation'] = { value: Settings.diffusion_scale_variation };
+reaction_diffusion_uniforms['anisotropy'] = { value: Settings.anisotropy };
+reaction_diffusion_uniforms['reset'] = { value: false };
+reaction_diffusion_uniforms['separate_fields'] = { value: Settings.separate_fields };
 
