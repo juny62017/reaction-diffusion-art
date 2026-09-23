@@ -1,3 +1,101 @@
+let gui_presets = {
+  "preset": "Default",
+  "remembered": {
+    "Default": {
+      "0": {
+        "diffusion_scale": 0.625,
+        "diffusion_scale_variation": 0.375,
+        "feed": 0.042,
+        "feed_variation": 0.001,
+        "kill": 0.06,
+        "kill_variation": 0.001,
+        "anisotropy": 0.8,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          168,
+          0,
+          0
+        ],
+        "background_color": [
+          229,
+          229,
+          229
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 64,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Dunes/Zebra": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.05,
+        "feed_variation": 0,
+        "kill": 0.061,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 700,
+        "separate_fields": true,
+        "substance_color": [
+          42.5,
+          34.436283485562186,
+          15.083363850911455
+        ],
+        "background_color": [
+          152.5,
+          134.62920684990445,
+          76.54912911209405
+        ],
+        "specular_color": [
+          12.5,
+          12.5,
+          12.5
+        ],
+        "bump": 10,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    }
+  },
+  "closed": true,
+  "folders": {
+    "Diffusion Scale": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
+    },
+    "Feed": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
+    },
+    "Kill": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
+    },
+    "Environment": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
+    },
+    "Render Settings": {
+      "preset": "Default",
+      "closed": true,
+      "folders": {}
+    }
+  }
+};
+
 let reaction_diffusion_fragment = `
 
 uniform sampler2D environment;
