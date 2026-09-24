@@ -448,6 +448,102 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Worm Mazes": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0.125,
+        "feed": 0.046,
+        "feed_variation": 0,
+        "kill": 0.063,
+        "kill_variation": 0,
+        "anisotropy": 0.7,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          175,
+          0,
+          0
+        ],
+        "background_color": [
+          255,
+          214.5001220703125,
+          214.5001220703125
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 64,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Maze": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0.0625,
+        "feed": 0.03,
+        "feed_variation": 0,
+        "kill": 0.0565,
+        "kill_variation": 0,
+        "anisotropy": 0.5,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          61.42165240119485,
+          175,
+          134.9135243768923
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Unstable Maze": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.026,
+        "feed_variation": 0,
+        "kill": 0.055,
+        "kill_variation": 0,
+        "anisotropy": 0.5,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          22.5,
+          10.634955699881061,
+          5.691187241498163
+        ],
+        "background_color": [
+          148.27568291792815,
+          175,
+          61.42165240119485
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
