@@ -608,6 +608,38 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Tensor Field Visualization": {
+      "0": {
+        "diffusion_scale": 0.375,
+        "diffusion_scale_variation": 0.25,
+        "feed": 0.03,
+        "feed_variation": 0,
+        "kill": 0.063,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          230,
+          230,
+          230
+        ],
+        "background_color": [
+          0,
+          0,
+          0
+        ],
+        "specular_color": [
+          0,
+          0,
+          0
+        ],
+        "bump": 0.1,
+        "shininess": 8,
+        "light_height": 1000,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
@@ -803,6 +835,15 @@ function Settings()
   Settings.bump = 20;
   Settings.separate_fields = false;
 
+  Settings.openGithub = () => {
+    window.open('https://github.com/linusmossberg/reaction-diffusion');
+  };
+
+  Settings.clearLocalStorage = () => {
+    localStorage.clear();
+    location.reload();
+  };
+
   Settings.toggleLight = () => {
     if(Settings.toggleLight.initiated === true)
     {
@@ -811,13 +852,15 @@ function Settings()
     }
   };
 
-  Settings.openGithub = () => {
-    window.open('https://github.com/linusmossberg/reaction-diffusion');
+  Settings.reset = () => {
+    reaction_diffusion_uniforms['reset'].value = true;
+    gpu_compute.compute();
+    reaction_diffusion_uniforms['reset'].value = false;
   };
 
-  Settings.clearLocalStorage = () => {
-    localStorage.clear();
-    location.reload();
+  Settings.saveImage = () => {
+    render.save_image = true;
+    render.savename = 'reaction-diffusion-' + gui.preset.replace(/ /g,"-").replace(/\//g,"-").toLowerCase() + '.png';
   };
 
   function variationProperty(value, variation, name, min0, max0, step0, min1, max1, step1)
@@ -878,9 +921,45 @@ function Settings()
 
   environment_folder.add(Settings, 'update_environment').name('Update');
 
-}
+  let render_folder = gui.addFolder('Render Settings')
 
-let width = window.innerWidth;
+  render_folder.addColor(Settings, 'substance_color').onChange(() => {
+    material.uniforms.substance_color.value.fromArray(Settings.substance_color).divideScalar(255);
+  }).name("Substance");
+
+  render_folder.addColor(Settings, 'background_color').onChange(() => {
+    material.uniforms.background_color.value.fromArray(Settings.background_color).divideScalar(255);
+  }).name("Background");
+
+  render_folder.addColor(Settings, 'specular_color').onChange(() => {
+    material.uniforms.specular_color.value.fromArray(Settings.specular_color).divideScalar(255);
+  }).name("Specular");
+
+  render_folder.add(Settings, 'bump', 0.1, 40, 0.1).onChange(() => {
+    material.uniforms.bump.value = Settings.bump;
+  }).name('Bump');
+
+  render_folder.add(Settings, 'shininess', 8, 256, 1).onChange(() => {
+    material.uniforms.shininess.value = Settings.shininess;
+  }).name('Phong Shininess');
+
+  render_folder.add(Settings, 'light_height', 10, 1000, 1).onChange(() => {
+    material.uniforms.light_pos.value.z = Settings.light_height;
+  }).name('Light Height');
+
+  let github = gui.add(Settings, 'openGithub').name('Source Code');
+  github.__li.style.borderLeft = '3px solid #fcac4e';
+  let github_icon = document.createElement('span');
+  github.domElement.parentElement.appendChild(github_icon);
+  github_icon.className = 'icon github';
+
+  gui.add(Settings, 'toggleLight').name('Toggle Light');
+  gui.add(Settings, 'saveImage').name('Save Image');
+  gui.add(Settings, 'clearLocalStorage').name('Restore Defaults');
+  gui.add(Settings, 'reset').name('Clear Substances');
+
+  gui.add(Settings, 'simulation_iterations_per_frame', 1, 64, 1).name('Simulation Speed');
+}let width = window.innerWidth;
 let height = window.innerHeight;
 
 let actual_width = Math.round(width * window.devicePixelRatio);
