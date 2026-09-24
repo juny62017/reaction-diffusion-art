@@ -160,6 +160,102 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Buoys": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.025,
+        "feed_variation": 0,
+        "kill": 0.06,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          110.00010172526044,
+          200.44118843826598,
+          212.5
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Currents": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.08,
+        "feed_variation": 0,
+        "kill": 0.06,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 500,
+        "separate_fields": true,
+        "substance_color": [
+          10,
+          10,
+          10
+        ],
+        "background_color": [
+          152.5,
+          81.01682739961791,
+          76.54912911209404
+        ],
+        "specular_color": [
+          0,
+          0,
+          0
+        ],
+        "bump": 6,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Oil Spill": {
+      "0": {
+        "diffusion_scale": 0.5,
+        "diffusion_scale_variation": 0.375,
+        "feed": 0.0475,
+        "feed_variation": 0.01,
+        "kill": 0.06,
+        "kill_variation": 0.01,
+        "anisotropy": 0.1,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          222.5,
+          222.5,
+          222.5
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
