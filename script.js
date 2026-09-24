@@ -96,6 +96,70 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Spots and Worms": {
+      "0": {
+        "diffusion_scale": 0.5,
+        "diffusion_scale_variation": 0.375,
+        "feed": 0.034,
+        "feed_variation": 0,
+        "kill": 0.0618,
+        "kill_variation": 0,
+        "anisotropy": 0.5,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          184.98049866919425,
+          209.25782305971563,
+          222.5
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Cell Division": {
+      "0": {
+        "diffusion_scale": 0.625,
+        "diffusion_scale_variation": 0.375,
+        "feed": 0.03,
+        "feed_variation": 0,
+        "kill": 0.063,
+        "kill_variation": 0,
+        "anisotropy": 0.5,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          0,
+          0,
+          0
+        ],
+        "background_color": [
+          212.5,
+          206.47059421913298,
+          110.00010172526044
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
@@ -341,6 +405,22 @@ function Settings()
   DS_prop.value_controller.onChange(changeDS);
   DS_prop.variation_controller.onChange(changeDS);
 
+  environment_folder = gui.addFolder('Environment');
+
+  environment_folder.add(Settings, 'anisotropy', 0.1, 0.9, 0.01).onChange(() => {
+    reaction_diffusion_uniforms['anisotropy'].value = Settings.anisotropy;
+  }).name('Anisotropy');
+
+  environment_folder.add(Settings, 'environment_noise_scale', 1, 1000, 1).name('Noise Scale').onFinishChange(() => {
+    createEnvironment(false);
+  });
+
+  environment_folder.add(Settings, 'separate_fields').onChange(() => {
+    reaction_diffusion_uniforms.separate_fields.value = Settings.separate_fields;
+  }).name('Separate Fields');
+
+  environment_folder.add(Settings, 'update_environment').name('Update');
+
 }
 
 let width = window.innerWidth;
@@ -585,6 +665,7 @@ renderer.domElement.onmousedown = onDown;
 renderer.domElement.onmouseup = onUp;
 renderer.domElement.onmouseleave = onUp;
 renderer.domElement.onmousemove = onMove;
+
 renderer.domElement.addEventListener("touchstart", touchStart, false);
 renderer.domElement.addEventListener("touchend", touchEnd, false);
 renderer.domElement.addEventListener("touchcancel", touchEnd, false);
