@@ -544,6 +544,70 @@ let gui_presets = {
         "light_height": 300,
         "simulation_iterations_per_frame": 4
       }
+    },
+    "Ripping": {
+      "0": {
+        "diffusion_scale": 0.375,
+        "diffusion_scale_variation": 0,
+        "feed": 0.034,
+        "feed_variation": 0,
+        "kill": 0.056,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          22.5,
+          11.480975827543798,
+          5.470599006204045
+        ],
+        "background_color": [
+          175,
+          61.42165240119485,
+          61.42165240119485
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 8,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
+    },
+    "Waves": {
+      "0": {
+        "diffusion_scale": 0.25,
+        "diffusion_scale_variation": 0,
+        "feed": 0.013,
+        "feed_variation": 0,
+        "kill": 0.045,
+        "kill_variation": 0,
+        "anisotropy": 0.9,
+        "environment_noise_scale": 250,
+        "separate_fields": false,
+        "substance_color": [
+          47.88239722158395,
+          87.25087026136285,
+          92.50000000000001
+        ],
+        "background_color": [
+          142.5,
+          142.5,
+          142.5
+        ],
+        "specular_color": [
+          128,
+          128,
+          128
+        ],
+        "bump": 20,
+        "shininess": 128,
+        "light_height": 300,
+        "simulation_iterations_per_frame": 4
+      }
     }
   },
   "closed": true,
@@ -745,6 +809,15 @@ function Settings()
       light_enabled = !light_enabled;
       light_element.style.opacity = light_enabled * 0.6;
     }
+  };
+
+  Settings.openGithub = () => {
+    window.open('https://github.com/linusmossberg/reaction-diffusion');
+  };
+
+  Settings.clearLocalStorage = () => {
+    localStorage.clear();
+    location.reload();
   };
 
   function variationProperty(value, variation, name, min0, max0, step0, min1, max1, step1)

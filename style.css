@@ -28,3 +28,13 @@ canvas {
   cursor: move;
   width: 75px;
 }
+
+.icon {
+  font-family: Arial, sans-serif;
+  font-size: 120%;
+  float: right;
+}
+
+.github:before {
+  content: '↗';
+}
